@@ -7,7 +7,6 @@ from datetime import datetime
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="BMW Price Predictor",
-    page_icon="🚘",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -136,13 +135,16 @@ html, body, [data-testid="stAppViewContainer"] {
     margin-bottom: 1.2rem;
 }
 
-/* ── Form card ── */
-.form-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.8rem 2rem;
-    margin-bottom: 1.5rem;
+/* ── Column labels ── */
+.col-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
 }
 
 /* ── Streamlit inputs ── */
@@ -248,7 +250,7 @@ current_year = datetime.now().year
 # ── Hero ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero">
-    <div class="hero-badge">🏎️ Machine Learning · Gradient Boosting</div>
+    <div class="hero-badge">Machine Learning · Gradient Boosting</div>
     <div class="hero-title">BMW Price Predictor</div>
     <p class="hero-sub">Instant used-car valuations powered by a trained Gradient Boosting model · UK Market</p>
 </div>
@@ -281,48 +283,40 @@ st.markdown("""
 # ── Input form ────────────────────────────────────────────────────────────────
 st.markdown('<div class="section-label">Vehicle Specifications</div>', unsafe_allow_html=True)
 
-with st.container():
-    col1, col2, col3 = st.columns(3)
+col1, col2, col3 = st.columns(3)
 
-    with col1:
-        st.markdown('<div class="form-card">', unsafe_allow_html=True)
-        st.markdown("**📋 Identity**")
-        model_name = st.selectbox("Car Model", [
-            "1 Series", "2 Series", "3 Series", "4 Series", "5 Series",
-            "6 Series", "7 Series", "8 Series",
-            "i3", "i8",
-            "X1", "X2", "X3", "X4", "X5", "X6", "X7",
-            "M2", "M3", "M4", "M5", "M6", "Z3", "Z4"
-        ])
-        year = st.number_input("Manufacturing Year", 1995, current_year, 2019)
-        transmission = st.selectbox("Transmission", ["Manual", "Automatic", "Semi-Auto"])
-        st.markdown('</div>', unsafe_allow_html=True)
+with col1:
+    st.markdown('<div class="col-label">Identity</div>', unsafe_allow_html=True)
+    model_name = st.selectbox("Car Model", [
+        "1 Series", "2 Series", "3 Series", "4 Series", "5 Series",
+        "6 Series", "7 Series", "8 Series",
+        "i3", "i8",
+        "X1", "X2", "X3", "X4", "X5", "X6", "X7",
+        "M2", "M3", "M4", "M5", "M6", "Z3", "Z4"
+    ])
+    year = st.number_input("Manufacturing Year", 1995, current_year, 2019)
+    transmission = st.selectbox("Transmission", ["Manual", "Automatic", "Semi-Auto"])
 
-    with col2:
-        st.markdown('<div class="form-card">', unsafe_allow_html=True)
-        st.markdown("**⚙️ Engine & Fuel**")
-        fuel_type = st.selectbox("Fuel Type", ["Petrol", "Diesel", "Hybrid", "Electric", "Other"])
-        engine_size = st.number_input("Engine Size (L)", 0.6, 6.0, 2.0, step=0.1)
-        mpg = st.number_input("Fuel Efficiency (MPG)", 5.0, 500.0, 45.0, step=1.0)
-        st.markdown('</div>', unsafe_allow_html=True)
+with col2:
+    st.markdown('<div class="col-label">Engine & Fuel</div>', unsafe_allow_html=True)
+    fuel_type = st.selectbox("Fuel Type", ["Petrol", "Diesel", "Hybrid", "Electric", "Other"])
+    engine_size = st.number_input("Engine Size (L)", 0.6, 6.0, 2.0, step=0.1)
+    mpg = st.number_input("Fuel Efficiency (MPG)", 5.0, 500.0, 45.0, step=1.0)
 
-    with col3:
-        st.markdown('<div class="form-card">', unsafe_allow_html=True)
-        st.markdown("**📊 Usage & Tax**")
-        mileage = st.number_input("Mileage (km)", 0, 300000, 25000, step=1000)
-        tax = st.number_input("Road Tax (£)", 0, 600, 150, step=10)
-
-        car_age = current_year - year
-        mileage_per_year = round(mileage / max(car_age, 1))
-        st.metric("Estimated Mileage / Year", f"{mileage_per_year:,} km")
-        st.markdown('</div>', unsafe_allow_html=True)
+with col3:
+    st.markdown('<div class="col-label">Usage & Tax</div>', unsafe_allow_html=True)
+    mileage = st.number_input("Mileage (km)", 0, 300000, 25000, step=1000)
+    tax = st.number_input("Road Tax (£)", 0, 600, 150, step=10)
+    car_age = current_year - year
+    mileage_per_year = round(mileage / max(car_age, 1))
+    st.metric("Estimated Mileage / Year", f"{mileage_per_year:,} km")
 
 
 # ── Predict button ────────────────────────────────────────────────────────────
 st.markdown("<br>", unsafe_allow_html=True)
 col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
 with col_btn2:
-    predict = st.button("🔍  Estimate Price")
+    predict = st.button("Predict Price")
 
 
 # ── Prediction logic ──────────────────────────────────────────────────────────
@@ -349,6 +343,13 @@ if predict:
     low  = predicted_price * 0.93
     high = predicted_price * 1.07
 
+    # Summary metrics above the price
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Model", model_name)
+    m2.metric("Year", str(year))
+    m3.metric("Mileage", f"{mileage:,} km")
+    m4.metric("Transmission", transmission)
+
     st.markdown(f"""
     <div class="result-card">
         <div class="result-label">Estimated Market Value</div>
@@ -358,13 +359,6 @@ if predict:
     """, unsafe_allow_html=True)
 
     st.markdown("<hr class='gold-divider'>", unsafe_allow_html=True)
-
-    # Summary metrics
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Model", model_name)
-    m2.metric("Year", str(year))
-    m3.metric("Mileage", f"{mileage:,} km")
-    m4.metric("Transmission", transmission)
 
 
 # ── Footer ────────────────────────────────────────────────────────────────────
