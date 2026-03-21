@@ -314,7 +314,7 @@ with col3:
 
 # ── Predict button ────────────────────────────────────────────────────────────
 st.markdown("<br>", unsafe_allow_html=True)
-col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
+col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
 with col_btn2:
     predict = st.button("Predict Price")
 
